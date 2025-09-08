@@ -1,6 +1,7 @@
 import os
 import psycopg2
 
+
 class MediaModel:
     def __init__(self):
         self.conn = psycopg2.connect(
