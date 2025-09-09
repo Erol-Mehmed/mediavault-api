@@ -1,4 +1,4 @@
-from app.models.media_model import MediaModel
+from app.models.media import MediaModel
 
 
 class MediaService:
