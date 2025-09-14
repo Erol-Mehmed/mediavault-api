@@ -1,22 +1,25 @@
 import os
 from dotenv import load_dotenv
+from typing import Final
 
 load_dotenv()
 
 
 class Config:
-    DB_NAME = os.getenv("DB_NAME")
-    DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
-    DB_HOST = os.getenv("DB_HOST")
-    DB_PORT = os.getenv("DB_PORT")
+    DB_NAME: Final[str] = os.getenv("DB_NAME")
+    DB_USER: Final[str] = os.getenv("DB_USER")
+    DB_PASSWORD: Final[str] = os.getenv("DB_PASSWORD")
+    DB_HOST: Final[str] = os.getenv("DB_HOST")
+    DB_PORT: Final[str] = os.getenv("DB_PORT")
 
-    FLASK_ENV = os.getenv("FLASK_ENV")
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    FLASK_ENV: Final[str] = os.getenv("FLASK_ENV")
+    SECRET_KEY: Final[str] = os.getenv("SECRET_KEY")
 
-    @staticmethod
-    def get_db_uri():
-        return (
-            f"postgresql://{Config.DB_USER}:{Config.DB_PASSWORD}"
-            f"@{Config.DB_HOST}:{Config.DB_PORT}/{Config.DB_NAME}"
-        )
+
+@property
+def database_url(self) -> str:
+    """Return database connection URL."""
+    return (
+        f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}"
+        f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+    )
