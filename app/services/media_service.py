@@ -1,9 +1,9 @@
-from app.models.media import MediaModel
+from app.repositories.media_repository import MediaRepository
 
 
 class MediaService:
     def __init__(self):
-        self.media_model = MediaModel()
+        self.repository = MediaRepository()
 
     def fetch_all_media(self):
-        return self.media_model.get_all_media()
+        return self.repository.get_all()
