@@ -1,4 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { MediaService } from './media.service';
 
 @Controller('media')
-export class MediaController {}
+export class MediaController {
+  constructor(private readonly mediaService: MediaService) {}
+
+  @Get()
+  getAllMedia() {
+    return this.mediaService.getAllMedia();
+  }
+}
