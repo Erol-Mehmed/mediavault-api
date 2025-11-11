@@ -1,7 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'pg';
 
-export type Media = Record<string, unknown>;
+export type Media = {
+  id: string;
+  title: string;
+  type: string;
+  releaseYear: string;
+};
 
 @Injectable()
 export class MediaRepository {
