@@ -20,9 +20,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false,
-    "allowJs": true,
-    "resolveJsonModule": true
-  },
-  "exclude": ["node_modules", "dist", "migrations", "node-pg-migrate.config.js"]
+    "noFallthroughCasesInSwitch": false
+  }
 }
