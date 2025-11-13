@@ -1,16 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'pg';
-
-export type Media = {
-  id: string;
-  title: string;
-  type: string;
-  releaseYear: string;
-};
+import { Media } from './media.model';
 
 @Injectable()
 export class MediaRepository {
-  constructor(@Inject('PG_CONNECTION') private db: Pool) {}
+  private readonly pool = new Pool({
+    connectionString: process.env.DATABASE_URL;
+  });
 
   async findAllMedia(): Promise<Media[]> {
     const result = await this.db.query<Media>('SELECT * FROM media');
