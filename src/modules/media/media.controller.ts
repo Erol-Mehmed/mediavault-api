@@ -6,7 +6,7 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Get()
-  getAllMedia() {
-    return this.mediaService.getAllMedia();
+  getAll() {
+    return this.mediaService.getAll();
   }
 }

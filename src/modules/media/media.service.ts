@@ -3,9 +3,9 @@ import { MediaRepository } from './media.repository';
 
 @Injectable()
 export class MediaService {
-  constructor(private readonly mediaRepo: MediaRepository) {}
+  constructor(private readonly mediaRepository: MediaRepository) {}
 
-  getAllMedia() {
-    return this.mediaRepo.findAllMedia();
+  getAll() {
+    return this.mediaRepository.findAll();
   }
 }

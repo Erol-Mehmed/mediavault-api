@@ -1,12 +1,17 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { Pool } from 'pg';
-import { Media } from './media.model';
+import { Injectable } from '@nestjs/common';
+import { KnexService } from '../../common/database/knex.service';
+import Media from './media.model';
 
 @Injectable()
 export class MediaRepository {
+  constructor(private knexService: KnexService) {}
 
-  async findAllMedia(): Promise<Media[]> {
-    const result = await this.db.query<Media>('SELECT * FROM media');
+  async findAll(): Promise<Media[]> {
+    const sql = 'SELECT * FROM media';
+    const result = await this.knexService.knex.raw<{
+      rows: Media[];
+    }>(sql);
+
     return result.rows;
   }
 }
