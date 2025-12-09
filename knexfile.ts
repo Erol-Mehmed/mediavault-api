@@ -11,8 +11,9 @@ const config: Knex.Config = {
     database: process.env.DB_NAME || 'mediavault',
   },
   migrations: {
-    extension: 'ts',
+    extension: 'js',
     directory: path.join(__dirname, 'src/migrations'),
+    tableName: 'migrations',
   },
   seeds: {
     extension: 'ts',
