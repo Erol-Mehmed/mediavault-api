@@ -15,10 +15,6 @@ const config: Knex.Config = {
     directory: path.join(__dirname, 'src/migrations'),
     tableName: 'migrations',
   },
-  seeds: {
-    extension: 'ts',
-    directory: path.join(__dirname, 'src/seeds'),
-  },
 };
 
 module.exports = config;
