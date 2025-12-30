@@ -6,6 +6,6 @@ export class MediaService {
   constructor(private readonly mediaRepository: MediaRepository) {}
 
   getAll() {
-    return this.mediaRepository.findAll();
+    return this.mediaRepository.getAll();
   }
 }

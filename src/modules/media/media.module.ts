@@ -6,7 +6,7 @@ import { DatabaseModule } from '../../common/database/database.module';
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [MediaController],
   providers: [MediaService, MediaRepository],
+  controllers: [MediaController],
 })
 export class MediaModule {}

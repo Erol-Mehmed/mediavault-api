@@ -42,7 +42,7 @@ export class MediaRepository {
     return rows[0];
   }
 
-  async findAll(): Promise<Media[]> {
+  async getAll(): Promise<Media[]> {
     const sql = `SELECT * FROM media ORDER BY created_at DESC`;
     const { rows } = await this.knexService.knex.raw<{
       rows: Media[];

@@ -7,7 +7,7 @@ export type MediaType =
   | 'documentary';
 
 export default interface Media {
-  id: number;
+  id: string;
 
   media_type: MediaType;
 
