@@ -1,13 +1,13 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
-import User from './users.model';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() data: Partial<User>) {
+  create(@Body() data: CreateUserDto) {
     return this.usersService.create(data);
   }
 
