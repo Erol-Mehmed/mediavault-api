@@ -41,4 +41,8 @@ export class UsersRepository {
 
     return rows;
   }
+
+  async findByEmail(email: string) {
+    const sql = `SELECT id `;
+  }
 }
