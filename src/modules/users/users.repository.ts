@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { KnexService } from '../../common/database/knex.service';
 import User from './users.model';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -43,6 +43,11 @@ export class UsersRepository {
   }
 
   async findByEmail(email: string) {
-    const sql = `SELECT id `;
+    const sql = `SELECT * FROM users WHERE email = ?`;
+    const { rows } = await this.knexService.knex.raw<{ rows: User[] }>(sql, [
+      email,
+    ]);
+
+    return rows[0];
   }
 }
