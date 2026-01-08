@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { KnexService } from '../../common/database/knex.service';
 import User from './users.model';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../auth/dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(private knexService: KnexService) {}
 
-  async create(data: CreateUserDto): Promise<User> {
+  async register(data: CreateUserDto): Promise<User> {
     const sql = `
       INSERT INTO users(email, password, is_active, username, first_name, last_name)
       VALUES(?, ?, ?, ?, ?, ?)
