@@ -14,8 +14,6 @@ export class AuthService {
   async login(data: LoginDto) {
     const user = await this.usersService.findByEmail(data.email);
 
-    console.log('test>>', user);
-
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
