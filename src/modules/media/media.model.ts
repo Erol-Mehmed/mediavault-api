@@ -8,6 +8,7 @@ export type MediaType =
 
 export default interface Media {
   id: string;
+  user_id: string;
 
   media_type: MediaType;
 
