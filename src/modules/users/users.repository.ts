@@ -29,7 +29,7 @@ export class UsersRepository {
 
     const { rows } = await this.knexService.knex.raw<{ rows: User[] }>(
       sql,
-      params,
+      this.knexService.normalizeBindings(params),
     );
 
     return rows[0];

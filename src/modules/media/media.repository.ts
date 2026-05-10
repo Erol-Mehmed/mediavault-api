@@ -36,7 +36,7 @@ export class MediaRepository {
 
     const { rows } = await this.knexService.knex.raw<{ rows: Media[] }>(
       sql,
-      params,
+      this.knexService.normalizeBindings(params),
     );
 
     return rows[0];
