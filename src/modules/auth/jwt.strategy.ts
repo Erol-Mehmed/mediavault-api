@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('jwt.secret') || 'dev-secret-change-me',
+      secretOrKey: configService.getOrThrow('jwt.secret'),
       issuer: 'mediavault-api',
       audience: 'mediavault-users',
     });

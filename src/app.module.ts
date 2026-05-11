@@ -4,10 +4,15 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import config from './config';
+import { envValidationSchema } from './common/config/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: config }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: config,
+      validationSchema: envValidationSchema,
+    }),
     MediaModule,
     UsersModule,
     AuthModule,

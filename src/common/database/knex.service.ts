@@ -8,11 +8,11 @@ export class KnexService {
     this.knex = knex({
       client: 'pg',
       connection: {
-        host: this.configService.get<string>('database.host'),
-        port: this.configService.get<number>('database.port'),
-        database: this.configService.get<string>('database.name'),
-        user: this.configService.get<string>('database.user'),
-        password: this.configService.get<string>('database.password'),
+        host: this.configService.getOrThrow<string>('database.host'),
+        port: this.configService.getOrThrow<number>('database.port'),
+        database: this.configService.getOrThrow<string>('database.name'),
+        user: this.configService.getOrThrow<string>('database.user'),
+        password: this.configService.getOrThrow<string>('database.password'),
       },
     });
   }
