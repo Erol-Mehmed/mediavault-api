@@ -5,7 +5,7 @@ import { MediaRepository } from './media.repository';
 export class MediaService {
   constructor(private readonly mediaRepository: MediaRepository) {}
 
-  getAll() {
-    return this.mediaRepository.getAll();
+  getAll(userId: string) {
+    return this.mediaRepository.getAll(userId);
   }
 }
