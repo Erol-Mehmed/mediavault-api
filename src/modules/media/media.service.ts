@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { MediaRepository } from './media.repository';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { CreateMediaData } from './types/create-media-data.type';
@@ -40,5 +40,15 @@ export class MediaService {
 
   getAll(userId: string) {
     return this.mediaRepository.getAll(userId);
+  }
+
+  async getOne(userId: string, id: string) {
+    const media = await this.mediaRepository.getOne(userId, id);
+
+    if (!media) {
+      throw new NotFoundException('Media not found');
+    }
+
+    return media;
   }
 }

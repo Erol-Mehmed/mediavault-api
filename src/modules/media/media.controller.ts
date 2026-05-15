@@ -1,4 +1,12 @@
-import { Body, Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
 import { MediaService } from './media.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth-guard';
 import { UserDecorator } from '../auth/decorators/user-decorator';
@@ -10,7 +18,7 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Post()
   create(@UserDecorator() user: UserType, @Body() dto: CreateMediaDto) {
     return this.mediaService.create(user.userId, dto);
   }
@@ -19,5 +27,17 @@ export class MediaController {
   @Get()
   getAll(@UserDecorator() user: UserType) {
     return this.mediaService.getAll(user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  getOne(@UserDecorator() user: UserType, @Param('id') id: string) {
+    return this.mediaService.getOne(user.userId, id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  update(@UserDecorator() user: UserType, @Param('id') id: string) {
+
   }
 }

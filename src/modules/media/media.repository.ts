@@ -52,4 +52,22 @@ export class MediaRepository {
 
     return rows;
   }
+
+  async getOne(userId: string, id: string) {
+    const sql = `SELECT * FROM media WHERE user_id = ? AND id = ?`;
+    const { rows } = await this.knexService.knex.raw<{
+      rows: Media[];
+    }>(sql, [userId, id]);
+
+    return rows[0] ?? null;
+  }
+
+  async update(userId: string, id: string) {
+    const sql = `SELECT * FROM media WHERE user_id = ? AND id = ?`;
+    const { rows } = await this.knexService.knex.raw<{
+      rows: Media[];
+    }>(sql, [userId, id]);
+
+    return rows[0] ?? null;
+  }
 }
