@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth-guard';
 import { UserDecorator } from '../auth/decorators/user-decorator';
 import type { UserType } from '../auth/types/user.type';
 import { CreateMediaDto } from './dto/create-media.dto';
+import { UpdateMediaDto } from './dto/update-media.dto';
 
 @Controller('media')
 export class MediaController {
@@ -24,6 +25,16 @@ export class MediaController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  update(
+    @UserDecorator() user: UserType,
+    @Param('id') id: string,
+    @Body() dto: UpdateMediaDto,
+  ) {
+    return this.mediaService.update(user.userId, id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAll(@UserDecorator() user: UserType) {
     return this.mediaService.getAll(user.userId);
@@ -33,11 +44,5 @@ export class MediaController {
   @Get(':id')
   getOne(@UserDecorator() user: UserType, @Param('id') id: string) {
     return this.mediaService.getOne(user.userId, id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch(':id')
-  update(@UserDecorator() user: UserType, @Param('id') id: string) {
-
   }
 }

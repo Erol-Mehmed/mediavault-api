@@ -44,6 +44,36 @@ export class MediaRepository {
     return rows[0];
   }
 
+  async update(
+    userId: string,
+    id: string,
+    data: Partial<Media>,
+  ): Promise<Media> {
+    const cleanData = Object.entries(data);
+
+    // Safety: if nothing to update, just return current record or null logic is up to service
+    const setClause = cleanData.map(([key]) => `${key} = ?`).join(', ');
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const values = cleanData.map(([_, value]) =>
+      typeof value === 'object' ? JSON.stringify(value) : value,
+    );
+
+    const sql = `
+    UPDATE media
+    SET ${setClause}
+    WHERE id = ? AND user_id = ?
+    RETURNING *
+  `;
+
+    const { rows } = await this.knexService.knex.raw<{ rows: Media[] }>(
+      sql,
+      this.knexService.normalizeBindings([...values, id, userId]),
+    );
+
+    return rows[0];
+  }
+
   async getAll(userId: string): Promise<Media[]> {
     const sql = `SELECT * FROM media WHERE user_id = ? ORDER BY created_at DESC`;
     const { rows } = await this.knexService.knex.raw<{
@@ -54,15 +84,6 @@ export class MediaRepository {
   }
 
   async getOne(userId: string, id: string) {
-    const sql = `SELECT * FROM media WHERE user_id = ? AND id = ?`;
-    const { rows } = await this.knexService.knex.raw<{
-      rows: Media[];
-    }>(sql, [userId, id]);
-
-    return rows[0] ?? null;
-  }
-
-  async update(userId: string, id: string) {
     const sql = `SELECT * FROM media WHERE user_id = ? AND id = ?`;
     const { rows } = await this.knexService.knex.raw<{
       rows: Media[];

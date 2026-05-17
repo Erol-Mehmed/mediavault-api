@@ -1,7 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { MediaRepository } from './media.repository';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { CreateMediaData } from './types/create-media-data.type';
+import { UpdateMediaDto } from './dto/update-media.dto';
+import { UpdateMediaData } from './types/update-media-data.type';
+import { cleanUpdate } from '../../common/utils/clean-update-util';
 
 @Injectable()
 export class MediaService {
@@ -36,6 +43,16 @@ export class MediaService {
     };
 
     return this.mediaRepository.create(mediaData);
+  }
+
+  update(userId: string, id: string, dto: UpdateMediaDto) {
+    const updateData: UpdateMediaData = cleanUpdate(dto);
+
+    if (!Object.keys(updateData).length) {
+      throw BadRequestException;
+    }
+
+    return this.mediaRepository.update(userId, id, updateData);
   }
 
   getAll(userId: string) {
