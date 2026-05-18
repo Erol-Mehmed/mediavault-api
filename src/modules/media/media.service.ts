@@ -45,14 +45,30 @@ export class MediaService {
     return this.mediaRepository.create(mediaData);
   }
 
-  update(userId: string, id: string, dto: UpdateMediaDto) {
+  async update(userId: string, id: string, dto: UpdateMediaDto) {
     const updateData: UpdateMediaData = cleanUpdate(dto);
 
     if (!Object.keys(updateData).length) {
-      throw BadRequestException;
+      throw new BadRequestException('No fields to update');
     }
 
-    return this.mediaRepository.update(userId, id, updateData);
+    const result = await this.mediaRepository.update(userId, id, updateData);
+
+    if (!result) {
+      throw new NotFoundException('Media not found');
+    }
+
+    return result;
+  }
+
+  async remove(userId: string, id: string) {
+    const result = await this.mediaRepository.remove(userId, id);
+
+    if (!result) {
+      throw new NotFoundException('Media not deleted');
+    }
+
+    return result;
   }
 
   getAll(userId: string) {

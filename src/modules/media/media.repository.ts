@@ -50,8 +50,6 @@ export class MediaRepository {
     data: Partial<Media>,
   ): Promise<Media> {
     const cleanData = Object.entries(data);
-
-    // Safety: if nothing to update, just return current record or null logic is up to service
     const setClause = cleanData.map(([key]) => `${key} = ?`).join(', ');
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -74,6 +72,15 @@ export class MediaRepository {
     return rows[0];
   }
 
+  async remove(userId: string, id: string): Promise<Media> {
+    const sql = `DELETE FROM media WHERE user_id = ? AND id = ? RETURNING id`;
+    const { rows } = await this.knexService.knex.raw<{
+      rows: Media[];
+    }>(sql, [userId, id]);
+
+    return rows[0] ?? null;
+  }
+
   async getAll(userId: string): Promise<Media[]> {
     const sql = `SELECT * FROM media WHERE user_id = ? ORDER BY created_at DESC`;
     const { rows } = await this.knexService.knex.raw<{
@@ -83,7 +90,7 @@ export class MediaRepository {
     return rows;
   }
 
-  async getOne(userId: string, id: string) {
+  async getOne(userId: string, id: string): Promise<Media> {
     const sql = `SELECT * FROM media WHERE user_id = ? AND id = ?`;
     const { rows } = await this.knexService.knex.raw<{
       rows: Media[];

@@ -6,6 +6,7 @@ import {
   Post,
   Patch,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { MediaService } from './media.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth-guard';
@@ -32,6 +33,14 @@ export class MediaController {
     @Body() dto: UpdateMediaDto,
   ) {
     return this.mediaService.update(user.userId, id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(@UserDecorator() user: UserType, @Param('id') id: string) {
+    await this.mediaService.remove(user.userId, id);
+
+    return { message: 'Media successfully deleted' };
   }
 
   @UseGuards(JwtAuthGuard)
