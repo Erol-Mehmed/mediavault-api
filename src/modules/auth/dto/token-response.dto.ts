@@ -7,7 +7,7 @@ export class TokenResponseDto {
   @IsString()
   refresh_token: string;
 
-  @IsNumber()
+  @IsString()
   expires_in: number;
 
   @IsString()

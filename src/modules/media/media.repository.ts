@@ -85,7 +85,7 @@ export class MediaRepository {
     const sql = `SELECT * FROM media WHERE user_id = ? ORDER BY created_at DESC`;
     const { rows } = await this.knexService.knex.raw<{
       rows: Media[];
-    }>(sql, userId);
+    }>(sql, [userId]);
 
     return rows;
   }

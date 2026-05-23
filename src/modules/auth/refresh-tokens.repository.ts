@@ -18,31 +18,31 @@ export class RefreshTokensRepository {
     return rows[0];
   }
 
-  async findByUserId(userId: string): Promise<RefreshToken> {
+  async findByUserId(userId: string): Promise<RefreshToken[]> {
     const sql = `SELECT * FROM refresh_tokens WHERE user_id = ? AND revoked = false AND expires_at > now()`;
     const { rows } = await this.knexService.knex.raw<{ rows: RefreshToken[] }>(
       sql,
-      userId,
+      [userId],
     );
 
-    return rows[0];
+    return rows;
   }
 
   async findByHash(tokenHash: string): Promise<RefreshToken> {
     const sql = `SELECT * FROM refresh_tokens WHERE token_hash = ?`;
     const { rows } = await this.knexService.knex.raw<{ rows: RefreshToken[] }>(
       sql,
-      tokenHash,
+      [tokenHash],
     );
 
     return rows[0];
   }
 
-  async revoke(userId: string): Promise<RefreshToken> {
-    const sql = `UPDATE refresh_tokens SET revoked = true WHERE user_id = ?`;
+  async revoke(tokenId: string): Promise<RefreshToken> {
+    const sql = `UPDATE refresh_tokens SET revoked = true WHERE id = ? RETURNING *`;
     const { rows } = await this.knexService.knex.raw<{ rows: RefreshToken[] }>(
       sql,
-      userId,
+      [tokenId],
     );
 
     return rows[0];
