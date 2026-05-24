@@ -5,8 +5,12 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokensRepository } from './refresh-tokens.repository';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RefreshToken } from './types/refresh-token.type';
+
+interface JwtPayload {
+  sub: string;
+  email: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -30,21 +34,18 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
     };
 
-    const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.getOrThrow<string>('JWT_SECRET'),
-      expiresIn: this.configService.getOrThrow<string>('JWT_EXPIRES_IN'),
-    });
+    const accessToken = this.jwtService.sign(payload);
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+      secret: this.configService.getOrThrow<string>('jwt.refreshSecret'),
       expiresIn: this.configService.getOrThrow<string>(
-        'JWT_REFRESH_EXPIRES_IN',
-      ),
+        'jwt.refreshExpiresIn',
+      ) as never,
     });
 
     const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
@@ -63,9 +64,12 @@ export class AuthService {
     };
   }
 
-  async refresh(refreshToken: string) {
-    const payload = this.jwtService.verify(refreshToken, {
-      secret: this.configService.getOrThrow('jwt.refreshSecret'),
+  private async validateRefreshToken(refreshToken: string): Promise<{
+    payload: JwtPayload;
+    token: RefreshToken;
+  }> {
+    const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
+      secret: this.configService.getOrThrow<string>('jwt.refreshSecret'),
     });
 
     const activeTokens = await this.refreshTokensRepository.findByUserId(
@@ -87,9 +91,22 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    await this.refreshTokensRepository.revoke(matchedToken.id!);
+    return {
+      payload,
+      token: matchedToken,
+    };
+  }
 
-    const newPayload = {
+  async logout(refreshToken: string) {
+    const { token } = await this.validateRefreshToken(refreshToken);
+    await this.refreshTokensRepository.revoke(token.id!);
+  }
+
+  async refresh(refreshToken: string) {
+    const { payload, token } = await this.validateRefreshToken(refreshToken);
+    await this.refreshTokensRepository.revoke(token.id!);
+
+    const newPayload: JwtPayload = {
       sub: payload.sub,
       email: payload.email,
     };
@@ -97,8 +114,10 @@ export class AuthService {
     const accessToken = this.jwtService.sign(newPayload);
 
     const newRefreshToken = this.jwtService.sign(newPayload, {
-      secret: this.configService.getOrThrow('jwt.refreshSecret'),
-      expiresIn: this.configService.getOrThrow('jwt.refreshExpiresIn'),
+      secret: this.configService.getOrThrow<string>('jwt.refreshSecret'),
+      expiresIn: this.configService.getOrThrow<string>(
+        'jwt.refreshExpiresIn',
+      ) as never,
     });
 
     const refreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
@@ -112,7 +131,7 @@ export class AuthService {
     return {
       access_token: accessToken,
       refresh_token: newRefreshToken,
-      expires_in: 900,
+      expires_in: '15m',
       token_type: 'Bearer',
     };
   }

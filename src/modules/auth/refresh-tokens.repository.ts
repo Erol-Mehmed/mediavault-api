@@ -28,18 +28,8 @@ export class RefreshTokensRepository {
     return rows;
   }
 
-  async findByHash(tokenHash: string): Promise<RefreshToken> {
-    const sql = `SELECT * FROM refresh_tokens WHERE token_hash = ?`;
-    const { rows } = await this.knexService.knex.raw<{ rows: RefreshToken[] }>(
-      sql,
-      [tokenHash],
-    );
-
-    return rows[0];
-  }
-
   async revoke(tokenId: string): Promise<RefreshToken> {
-    const sql = `UPDATE refresh_tokens SET revoked = true WHERE id = ? RETURNING *`;
+    const sql = `UPDATE refresh_tokens SET revoked = true WHERE id = ?`;
     const { rows } = await this.knexService.knex.raw<{ rows: RefreshToken[] }>(
       sql,
       [tokenId],
