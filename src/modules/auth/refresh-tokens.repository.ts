@@ -28,13 +28,13 @@ export class RefreshTokensRepository {
     return rows;
   }
 
-  async revoke(tokenId: string): Promise<RefreshToken> {
+  async revoke(tokenId: string): Promise<boolean> {
     const sql = `UPDATE refresh_tokens SET revoked = true WHERE id = ?`;
     const { rows } = await this.knexService.knex.raw<{ rows: RefreshToken[] }>(
       sql,
       [tokenId],
     );
 
-    return rows[0];
+    return !!rows[0];
   }
 }

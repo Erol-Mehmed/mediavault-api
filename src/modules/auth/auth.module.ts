@@ -7,10 +7,12 @@ import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokensRepository } from './refresh-tokens.repository';
+import { DatabaseModule } from '../../common/database/database.module';
 
 @Module({
   imports: [
     UsersModule,
+    DatabaseModule,
 
     PassportModule.register({
       defaultStrategy: 'jwt',
@@ -23,7 +25,7 @@ import { RefreshTokensRepository } from './refresh-tokens.repository';
         secret: configService.getOrThrow<string>('jwt.secret'),
 
         signOptions: {
-          expiresIn: Number(configService.getOrThrow('jwt.expiresIn')),
+          expiresIn: configService.getOrThrow('jwt.expiresIn'),
           issuer: configService.getOrThrow<string>('jwt.issuer'),
           audience: configService.getOrThrow<string>('jwt.audience'),
         },
