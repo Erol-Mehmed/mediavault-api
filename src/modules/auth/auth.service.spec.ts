@@ -18,12 +18,15 @@ describe('AuthService', () => {
     findByEmail: jest.fn(),
   };
 
-  const mockRefreshTokenRepository = {
+  const mockRefreshTokensRepository = {
     create: jest.fn(),
+    findByUserId: jest.fn(),
+    revoke: jest.fn(),
   };
 
   const mockJwtService = {
     sign: jest.fn(),
+    verify: jest.fn(),
   };
 
   const mockConfigService = {
@@ -42,7 +45,7 @@ describe('AuthService', () => {
         },
         {
           provide: RefreshTokensRepository,
-          useValue: mockRefreshTokenRepository,
+          useValue: mockRefreshTokensRepository,
         },
         {
           provide: JwtService,
@@ -58,34 +61,106 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
   });
 
+  // Service existence
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should login successfully', async () => {
-    mockUsersService.findByEmail.mockResolvedValue({
-      id: 'user-1',
-      email: 'test@example.com',
-      password: 'hashed-password',
+  // -------------------------
+  // LOGIN GROUP
+  // -------------------------
+  describe('login', () => {
+    // Login successfully
+    it('should login successfully', async () => {
+      mockUsersService.findByEmail.mockResolvedValue({
+        id: 'user-1',
+        email: 'test@example.com',
+        password: 'hashed-password',
+      });
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      mockJwtService.sign
+        .mockReturnValueOnce('access-token')
+        .mockReturnValueOnce('refresh-token');
+
+      mockRefreshTokensRepository.create.mockResolvedValue({});
+
+      mockConfigService.getOrThrow.mockReturnValue('15m');
+
+      const result = await service.login({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+
+      expect(result).toBeDefined();
+      expect(result.access_token).toBe('access-token');
+      expect(result.refresh_token).toBe('refresh-token');
     });
 
-    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    // Login failure - email
+    it('should throw if email does not exist', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(null);
 
-    mockJwtService.sign
-      .mockReturnValueOnce('access-token')
-      .mockReturnValueOnce('refresh-token');
-
-    mockRefreshTokenRepository.create.mockResolvedValue({});
-
-    mockConfigService.getOrThrow.mockReturnValue('15m');
-
-    const result = await service.login({
-      email: 'test@example.com',
-      password: 'password123',
+      await expect(
+        service.login({
+          email: 'missing@example.com',
+          password: 'password123',
+        }),
+      ).rejects.toThrow('Invalid email or password');
     });
 
-    expect(result).toBeDefined();
-    expect(result.access_token).toBe('access-token');
-    expect(result.refresh_token).toBe('refresh-token');
+    // Login failure - password
+    it('should throw if password is invalid', async () => {
+      mockUsersService.findByEmail.mockResolvedValue({
+        id: 'user-1',
+        email: 'test@example.com',
+        password: 'hashed-password',
+      });
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      await expect(
+        service.login({
+          email: 'test@example.com',
+          password: 'wrong-password',
+        }),
+      ).rejects.toThrow('Invalid email or password');
+    });
+  });
+
+  // -------------------------
+  // LOGOUT GROUP
+  // -------------------------
+  describe('logout', () => {
+    // Logout success
+    it('should logout successfully', async () => {
+      mockJwtService.verify.mockReturnValue({
+        sub: 'user-1',
+        email: 'test@example.com',
+      });
+
+      mockRefreshTokensRepository.findByUserId.mockResolvedValue([
+        {
+          id: 'token-1',
+          user_id: 'user-1',
+          token_hash: 'hashed-token',
+          revoked: false,
+        },
+      ]);
+
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      mockRefreshTokensRepository.revoke.mockResolvedValue(true);
+
+      await service.logout('refresh-token');
+
+      expect(mockRefreshTokensRepository.findByUserId).toHaveBeenCalledWith(
+        'user-1',
+      );
+      expect(mockRefreshTokensRepository.revoke).toHaveBeenCalledWith(
+        'token-1',
+      );
+    });
   });
 });
