@@ -5,6 +5,7 @@ import { RefreshTokensRepository } from './refresh-tokens.repository';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { createAuthMocks } from '../../test/helpers/auth-mocks.helper';
 
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),
@@ -13,47 +14,29 @@ jest.mock('bcrypt', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-
-  const mockUsersService = {
-    findByEmail: jest.fn(),
-  };
-
-  const mockRefreshTokensRepository = {
-    create: jest.fn(),
-    findByUserId: jest.fn(),
-    revoke: jest.fn(),
-  };
-
-  const mockJwtService = {
-    sign: jest.fn(),
-    verify: jest.fn(),
-  };
-
-  const mockConfigService = {
-    getOrThrow: jest.fn(),
-  };
+  let mocks: ReturnType<typeof createAuthMocks>;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    mocks = createAuthMocks();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         {
           provide: UsersService,
-          useValue: mockUsersService,
+          useValue: mocks.usersService,
         },
         {
           provide: RefreshTokensRepository,
-          useValue: mockRefreshTokensRepository,
+          useValue: mocks.refreshTokensRepository,
         },
         {
           provide: JwtService,
-          useValue: mockJwtService,
+          useValue: mocks.jwtService,
         },
         {
           provide: ConfigService,
-          useValue: mockConfigService,
+          useValue: mocks.configService,
         },
       ],
     }).compile();
@@ -61,18 +44,15 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
   });
 
-  // Service existence
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  // -------------------------
-  // LOGIN GROUP
-  // -------------------------
+  // ---------------- LOGIN ----------------
   describe('login', () => {
     // Login successfully
     it('should login successfully', async () => {
-      mockUsersService.findByEmail.mockResolvedValue({
+      mocks.usersService.findByEmail.mockResolvedValue({
         id: 'user-1',
         email: 'test@example.com',
         password: 'hashed-password',
@@ -80,13 +60,13 @@ describe('AuthService', () => {
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      mockJwtService.sign
+      mocks.jwtService.sign
         .mockReturnValueOnce('access-token')
         .mockReturnValueOnce('refresh-token');
 
-      mockRefreshTokensRepository.create.mockResolvedValue({});
+      mocks.refreshTokensRepository.create.mockResolvedValue({});
 
-      mockConfigService.getOrThrow.mockReturnValue('15m');
+      mocks.configService.getOrThrow.mockReturnValue('15m');
 
       const result = await service.login({
         email: 'test@example.com',
@@ -100,7 +80,7 @@ describe('AuthService', () => {
 
     // Login failure - email
     it('should throw if email does not exist', async () => {
-      mockUsersService.findByEmail.mockResolvedValue(null);
+      mocks.usersService.findByEmail.mockResolvedValue(null);
 
       await expect(
         service.login({
@@ -112,7 +92,7 @@ describe('AuthService', () => {
 
     // Login failure - password
     it('should throw if password is invalid', async () => {
-      mockUsersService.findByEmail.mockResolvedValue({
+      mocks.usersService.findByEmail.mockResolvedValue({
         id: 'user-1',
         email: 'test@example.com',
         password: 'hashed-password',
@@ -129,18 +109,16 @@ describe('AuthService', () => {
     });
   });
 
-  // -------------------------
-  // LOGOUT GROUP
-  // -------------------------
+  // ---------------- LOGOUT ----------------
   describe('logout', () => {
     // Logout success
     it('should logout successfully', async () => {
-      mockJwtService.verify.mockReturnValue({
+      mocks.jwtService.verify.mockReturnValue({
         sub: 'user-1',
         email: 'test@example.com',
       });
 
-      mockRefreshTokensRepository.findByUserId.mockResolvedValue([
+      mocks.refreshTokensRepository.findByUserId.mockResolvedValue([
         {
           id: 'token-1',
           user_id: 'user-1',
@@ -151,14 +129,14 @@ describe('AuthService', () => {
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      mockRefreshTokensRepository.revoke.mockResolvedValue(true);
+      mocks.refreshTokensRepository.revoke.mockResolvedValue(true);
 
       await service.logout('refresh-token');
 
-      expect(mockRefreshTokensRepository.findByUserId).toHaveBeenCalledWith(
+      expect(mocks.refreshTokensRepository.findByUserId).toHaveBeenCalledWith(
         'user-1',
       );
-      expect(mockRefreshTokensRepository.revoke).toHaveBeenCalledWith(
+      expect(mocks.refreshTokensRepository.revoke).toHaveBeenCalledWith(
         'token-1',
       );
     });
