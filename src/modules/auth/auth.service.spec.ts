@@ -50,7 +50,6 @@ describe('AuthService', () => {
 
   // ---------------- LOGIN ----------------
   describe('login', () => {
-    // Login successfully
     it('should login successfully', async () => {
       mocks.usersService.findByEmail.mockResolvedValue({
         id: 'user-1',
@@ -78,7 +77,6 @@ describe('AuthService', () => {
       expect(result.refresh_token).toBe('refresh-token');
     });
 
-    // Login failure - email
     it('should throw if email does not exist', async () => {
       mocks.usersService.findByEmail.mockResolvedValue(null);
 
@@ -90,7 +88,6 @@ describe('AuthService', () => {
       ).rejects.toThrow('Invalid email or password');
     });
 
-    // Login failure - password
     it('should throw if password is invalid', async () => {
       mocks.usersService.findByEmail.mockResolvedValue({
         id: 'user-1',
@@ -111,7 +108,6 @@ describe('AuthService', () => {
 
   // ---------------- LOGOUT ----------------
   describe('logout', () => {
-    // Logout success
     it('should logout successfully', async () => {
       mocks.jwtService.verify.mockReturnValue({
         sub: 'user-1',
