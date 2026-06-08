@@ -4,6 +4,7 @@ export default interface User {
   email: string;
   password: string;
   is_active: boolean;
+  is_premium: boolean;
 
   username?: string | null;
   first_name?: string | null;
