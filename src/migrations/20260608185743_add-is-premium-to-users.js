@@ -6,10 +6,6 @@ exports.up = async function (knex) {
   await knex.schema.alterTable('users', (table) => {
     table.boolean('is_premium').defaultTo(false);
   });
-
-  await knex('users').update({ is_premium: false });
-
-  // await knex.raw('ALTER TABLE users ALTER COLUMN is_premium SET NOT NULL');
 };
 
 /**

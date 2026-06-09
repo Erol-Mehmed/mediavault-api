@@ -104,6 +104,11 @@ export class AuthService {
       refresh_token: refreshToken,
       expires_in: '15m',
       token_type: 'Bearer',
+      user: {
+        id: user.id,
+        email: user.email,
+        is_premium: user.is_premium,
+      },
     };
   }
 
