@@ -64,6 +64,8 @@ export class AuthService {
     };
   }
 
+  // -----------------------------------------------------------------------------------------
+
   async login(data: LoginDto) {
     const user = await this.usersService.findByEmail(data.email);
 
@@ -100,15 +102,17 @@ export class AuthService {
     });
 
     return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      expires_in: '15m',
-      token_type: 'Bearer',
-      user: {
-        id: user.id,
-        email: user.email,
-        is_premium: user.is_premium,
+      response: {
+        access_token: accessToken,
+        expires_in: '15m',
+        token_type: 'Bearer',
+        user: {
+          id: user.id,
+          email: user.email,
+          is_premium: user.is_premium,
+        },
       },
+      refresh_token: refreshToken,
     };
   }
 
