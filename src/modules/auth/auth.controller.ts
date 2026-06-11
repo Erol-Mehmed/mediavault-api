@@ -19,10 +19,10 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: 'auth/refresh',
+      path: '/auth/refresh',
     });
 
-    return result.response;
+    return result;
   }
 
   @Post('refresh')

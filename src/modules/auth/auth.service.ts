@@ -102,17 +102,15 @@ export class AuthService {
     });
 
     return {
-      response: {
-        access_token: accessToken,
-        expires_in: '15m',
-        token_type: 'Bearer',
-        user: {
-          id: user.id,
-          email: user.email,
-          is_premium: user.is_premium,
-        },
-      },
+      access_token: accessToken,
       refresh_token: refreshToken,
+      expires_in: '15m',
+      token_type: 'Bearer',
+      user: {
+        id: user.id,
+        email: user.email,
+        is_premium: user.is_premium,
+      },
     };
   }
 
