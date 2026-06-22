@@ -8,6 +8,7 @@ import { RefreshTokensRepository } from './refresh-tokens.repository';
 import { RefreshToken } from './types/refresh-token.type';
 import { JwtPayload } from './types/jwt-payload.type';
 import ms, { StringValue } from 'ms';
+import User from '../users/users.model';
 
 @Injectable()
 export class AuthService {
@@ -64,10 +65,14 @@ export class AuthService {
     };
   }
 
+  private async getUser(email: string): Promise<User> {
+    return await this.usersService.findByEmail(email);
+  }
+
   // -----------------------------------------------------------------------------------------
 
   async login(data: LoginDto) {
-    const user = await this.usersService.findByEmail(data.email);
+    const user = await this.getUser(data.email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
@@ -121,6 +126,7 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     const { payload, token } = await this.validateRefreshToken(refreshToken);
+    const user = await this.getUser(payload.email);
     await this.refreshTokensRepository.revoke(token.id!);
 
     const newPayload: JwtPayload = {
@@ -147,9 +153,14 @@ export class AuthService {
 
     return {
       access_token: accessToken,
-      refresh_token: newRefreshToken,
+      refresh_token: refreshToken,
       expires_in: '15m',
       token_type: 'Bearer',
+      user: {
+        id: user.id,
+        email: user.email,
+        is_premium: user.is_premium,
+      },
     };
   }
 }
