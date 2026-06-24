@@ -163,4 +163,32 @@ export class AuthService {
       },
     };
   }
+
+  async me(refreshToken?: string) {
+    if (!refreshToken) {
+      return {
+        authenticated: false,
+        user: null,
+      };
+    }
+
+    try {
+      const { payload } = await this.validateRefreshToken(refreshToken);
+      const user = await this.getUser(payload.email);
+
+      return {
+        authenticated: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          is_premium: user.is_premium,
+        },
+      };
+    } catch {
+      return {
+        authenticated: false,
+        user: null,
+      };
+    }
+  }
 }

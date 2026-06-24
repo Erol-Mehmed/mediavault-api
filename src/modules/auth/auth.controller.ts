@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   Req,
   Res,
@@ -31,6 +32,21 @@ export class AuthController {
     return result;
   }
 
+  @Post('logout')
+  logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies?.refresh_token as string | undefined;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token missing');
+    }
+
+    res.clearCookie('refresh_token', {
+      path: '/auth/refresh',
+    });
+
+    return this.authService.logout(refreshToken);
+  }
+
   @Post('refresh')
   async refresh(
     @Req() req: Request,
@@ -59,18 +75,9 @@ export class AuthController {
     };
   }
 
-  @Post('logout')
-  logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  @Get('me')
+  me(@Req() req: Request) {
     const refreshToken = req.cookies?.refresh_token as string | undefined;
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token missing');
-    }
-
-    res.clearCookie('refresh_token', {
-      path: '/auth/refresh',
-    });
-
-    return this.authService.logout(refreshToken);
+    return this.authService.me(refreshToken);
   }
 }
