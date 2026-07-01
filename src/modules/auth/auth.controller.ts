@@ -41,7 +41,7 @@ export class AuthController {
     }
 
     res.clearCookie('refresh_token', {
-      path: '/auth/refresh',
+      path: '/',
     });
 
     return this.authService.logout(refreshToken);
