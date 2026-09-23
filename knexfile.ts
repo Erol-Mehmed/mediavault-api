@@ -6,7 +6,7 @@ const config: Knex.Config = {
   connection: {
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT) || 5432,
-    user: process.env.DB_USER || 'postgres',
+    user: process.env.DB_USER || 'erolmehmed',
     password: process.env.DB_PASS || 'postgres',
     database: process.env.DB_NAME || 'mediavault',
   },
