@@ -21,7 +21,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   @Length(3, 30)
-  username?: string | null;
+  username: string | null;
 
   @IsOptional()
   @IsString()
