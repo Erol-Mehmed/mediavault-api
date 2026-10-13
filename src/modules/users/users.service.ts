@@ -7,9 +7,9 @@ import { UserAlreadyExistsError } from '../../common/errors/user-already-exists.
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  register(data: CreateUserDto) {
+  async register(data: CreateUserDto) {
     try {
-      return this.usersRepository.register(data);
+      return await this.usersRepository.register(data);
     } catch (error) {
       if (error instanceof UserAlreadyExistsError) {
         throw new ConflictException('Email or username already exists');

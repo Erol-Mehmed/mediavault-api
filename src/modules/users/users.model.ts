@@ -6,7 +6,7 @@ export default interface User {
   is_active: boolean;
   is_premium: boolean;
 
-  username: string | null;
+  username: string;
   first_name?: string | null;
   last_name?: string | null;
 

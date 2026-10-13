@@ -18,10 +18,9 @@ export class CreateUserDto {
   @IsBoolean()
   is_active?: boolean;
 
-  @IsOptional()
   @IsString()
   @Length(3, 30)
-  username: string | null;
+  username: string;
 
   @IsOptional()
   @IsString()
