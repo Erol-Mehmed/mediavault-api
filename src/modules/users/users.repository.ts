@@ -13,8 +13,8 @@ export class UsersRepository {
   async register(data: CreateUserDto): Promise<User> {
     try {
       const sql = `
-        INSERT INTO users(email, password, is_active, username, first_name, last_name)
-        VALUES(?, ?, ?, ?, ?, ?)
+        INSERT INTO users(email, password, username, first_name, last_name)
+        VALUES(?, ?, ?, ?, ?)
         RETURNING *
       `;
 
@@ -24,7 +24,6 @@ export class UsersRepository {
       const params = [
         data.email,
         hashedPassword,
-        data.is_active,
         data.username,
         data.first_name,
         data.last_name,
