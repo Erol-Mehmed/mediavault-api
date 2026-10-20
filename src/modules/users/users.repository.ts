@@ -15,7 +15,7 @@ export class UsersRepository {
       const sql = `
         INSERT INTO users(email, password, username, first_name, last_name)
         VALUES(?, ?, ?, ?, ?)
-        RETURNING *
+        RETURNING email, username, first_name, last_name
       `;
 
       const salt = await bcrypt.genSalt();
