@@ -13,21 +13,15 @@ export class UsersRepository {
   async register(data: CreateUserDto): Promise<User> {
     try {
       const sql = `
-        INSERT INTO users(email, password, username, first_name, last_name)
-        VALUES(?, ?, ?, ?, ?)
-        RETURNING email, username, first_name, last_name, is_active, is_premium, created_at, updated_at
+        INSERT INTO users(email, password, username)
+        VALUES(?, ?, ?)
+        RETURNING id, email, username, is_active, is_premium, created_at, updated_at
       `;
 
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(data.password, salt);
 
-      const params = [
-        data.email,
-        hashedPassword,
-        data.username,
-        data.first_name,
-        data.last_name,
-      ];
+      const params = [data.email, hashedPassword, data.username];
 
       const { rows } = await this.knexService.knex.raw<{ rows: User[] }>(
         sql,

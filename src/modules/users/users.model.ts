@@ -7,8 +7,8 @@ export default interface User {
   is_premium: boolean;
 
   username: string;
-  first_name?: string | null;
-  last_name?: string | null;
+  first_name: string | null;
+  last_name: string | null;
 
   created_at: string;
   updated_at: string;
