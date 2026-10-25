@@ -2,12 +2,13 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserAlreadyExistsError } from '../../common/errors/user-already-exists.error';
+import { RegisterResponse } from './types/register-response';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async register(data: CreateUserDto) {
+  async register(data: CreateUserDto): Promise<RegisterResponse> {
     try {
       return await this.usersRepository.register(data);
     } catch (error) {

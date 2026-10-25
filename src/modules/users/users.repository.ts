@@ -5,12 +5,13 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserAlreadyExistsError } from '../../common/errors/user-already-exists.error';
 import { isPostgresUniqueViolation } from '../../common/utils/postgres-error.utils';
+import { RegisterResponse } from './types/register-response';
 
 @Injectable()
 export class UsersRepository {
   constructor(private knexService: KnexService) {}
 
-  async register(data: CreateUserDto): Promise<User> {
+  async register(data: CreateUserDto): Promise<RegisterResponse> {
     try {
       const sql = `
         INSERT INTO users(email, password, username)
