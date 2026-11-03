@@ -6,7 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { ConfigService } from '@nestjs/config';
-import { RefreshTokensRepository } from './refresh-tokens.repository';
+import { RefreshTokensRepository } from './repositories/refresh-tokens.repository';
 import { DatabaseModule } from '../../common/database/database.module';
 
 @Module({

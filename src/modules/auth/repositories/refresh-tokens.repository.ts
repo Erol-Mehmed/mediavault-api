@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { KnexService } from '../../common/database/knex.service';
-import { RefreshToken } from './types/refresh-token.type';
+import { KnexService } from '../../../common/database/knex.service';
+import { RefreshToken } from '../types/refresh-token.type';
 
 @Injectable()
 export class RefreshTokensRepository {

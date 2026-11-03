@@ -4,7 +4,7 @@ import { LoginDto } from './dto/login.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { RefreshTokensRepository } from './refresh-tokens.repository';
+import { RefreshTokensRepository } from './repositories/refresh-tokens.repository';
 import { RefreshToken } from './types/refresh-token.type';
 import { JwtPayload } from './types/jwt-payload.type';
 import ms, { StringValue } from 'ms';
