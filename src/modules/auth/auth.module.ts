@@ -8,6 +8,7 @@ import { UsersModule } from '../users/users.module';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokensRepository } from './repositories/refresh-tokens.repository';
 import { DatabaseModule } from '../../common/database/database.module';
+import { PasswordResetRepository } from './repositories/password-reset.repository';
 
 @Module({
   imports: [
@@ -33,7 +34,12 @@ import { DatabaseModule } from '../../common/database/database.module';
     }),
   ],
 
-  providers: [AuthService, JwtStrategy, RefreshTokensRepository],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    RefreshTokensRepository,
+    PasswordResetRepository,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}
