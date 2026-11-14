@@ -17,4 +17,11 @@ export const envValidationSchema = Joi.object({
   // REFRESH JWT
   JWT_REFRESH_SECRET: Joi.string().required(),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
+
+  // SMTP
+  SMTP_HOST: Joi.string().required(),
+  SMTP_PORT: Joi.number().default(2525),
+  SMTP_USER: Joi.string().required(),
+  SMTP_PASS: Joi.string().required(),
+  SMTP_FROM: Joi.string().required(),
 });

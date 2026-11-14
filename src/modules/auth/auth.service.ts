@@ -9,15 +9,22 @@ import { RefreshToken } from './types/refresh-token.type';
 import { JwtPayload } from './types/jwt-payload.type';
 import ms, { StringValue } from 'ms';
 import User from '../users/users.model';
+import { PasswordResetRepository } from './repositories/password-reset.repository';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { createHash, randomBytes } from 'node:crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly refreshTokensRepository: RefreshTokensRepository,
+    private readonly passwordResetRepository: PasswordResetRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+
+  // Helpers-----------------------------------------------------------------------------
+
   private getExpiresAt(): string {
     const refreshExpiresIn = this.configService.getOrThrow<StringValue>(
       'jwt.refreshExpiresIn',
@@ -32,6 +39,9 @@ export class AuthService {
     return new Date(Date.now() + refreshExpiresMs).toISOString();
   }
 
+  private getPasswordResetExpiresAt(): string {
+    return new Date(Date.now() + 15 * 60 * 1000).toISOString();
+  }
   private async validateRefreshToken(refreshToken: string): Promise<{
     payload: JwtPayload;
     token: RefreshToken;
@@ -190,5 +200,26 @@ export class AuthService {
         user: null,
       };
     }
+  }
+
+  async forgotPassword(data: ForgotPasswordDto) {
+    const user = await this.getUser(data.email);
+
+    if (!user) {
+      return {
+        message:
+          'If an account exists with this email, you will receive password reset instructions.',
+      };
+    }
+
+    const token = randomBytes(32).toString('hex');
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+
+    await this.passwordResetRepository.invalidateActiveByUserId(user.id);
+    await this.passwordResetRepository.create({
+      user_id: user.id,
+      token_hash: tokenHash,
+      expires_at: this.getPasswordResetExpiresAt(),
+    });
   }
 }
