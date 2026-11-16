@@ -9,11 +9,13 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshTokensRepository } from './repositories/refresh-tokens.repository';
 import { DatabaseModule } from '../../common/database/database.module';
 import { PasswordResetRepository } from './repositories/password-reset.repository';
+import { EmailModule } from '../../common/email/email.module';
 
 @Module({
   imports: [
     UsersModule,
     DatabaseModule,
+    EmailModule,
 
     PassportModule.register({
       defaultStrategy: 'jwt',

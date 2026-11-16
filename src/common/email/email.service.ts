@@ -16,4 +16,19 @@ export class EmailService {
       },
     });
   }
+
+  async sendEmail(
+    to: string,
+    subject: string,
+    text: string,
+    html?: string,
+  ): Promise<void> {
+    await this.transporter.sendMail({
+      from: this.configService.getOrThrow<string>('smtp.from'),
+      to,
+      subject,
+      text,
+      html,
+    });
+  }
 }

@@ -10,6 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import type { Request, Response } from 'express';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -79,5 +80,10 @@ export class AuthController {
   me(@Req() req: Request) {
     const refreshToken = req.cookies?.refresh_token as string | undefined;
     return this.authService.me(refreshToken);
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() data: ForgotPasswordDto) {
+    return this.authService.forgotPassword(data);
   }
 }

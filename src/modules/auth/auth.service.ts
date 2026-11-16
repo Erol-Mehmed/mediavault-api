@@ -12,6 +12,7 @@ import User from '../users/users.model';
 import { PasswordResetRepository } from './repositories/password-reset.repository';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { createHash, randomBytes } from 'node:crypto';
+import { EmailService } from '../../common/email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private readonly passwordResetRepository: PasswordResetRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   // Helpers-----------------------------------------------------------------------------
@@ -204,12 +206,15 @@ export class AuthService {
 
   async forgotPassword(data: ForgotPasswordDto) {
     const user = await this.getUser(data.email);
-
-    if (!user) {
+    const messagedReturn = () => {
       return {
         message:
           'If an account exists with this email, you will receive password reset instructions.',
       };
+    };
+
+    if (!user) {
+      return messagedReturn();
     }
 
     const token = randomBytes(32).toString('hex');
@@ -221,5 +226,24 @@ export class AuthService {
       token_hash: tokenHash,
       expires_at: this.getPasswordResetExpiresAt(),
     });
+
+    const resetUrl = `http://localhost:3000/reset-password?token=${token}`;
+
+    await this.emailService.sendEmail(
+      user.email,
+      'MediaVault - Password Reset',
+      `You requested a password reset. Open this link to reset your password: ${resetUrl}`,
+      `
+        <h2>Password Reset</h2>
+        <p>You requested a password reset for your MediaVault account.</p>
+        <p>
+          <a href="${resetUrl}">Reset your password</a>
+        </p>
+        <p>This link expires in 15 minutes.</p>
+        <p>If you didn't request this, you can ignore this email.</p>
+      `,
+    );
+
+    return messagedReturn();
   }
 }
