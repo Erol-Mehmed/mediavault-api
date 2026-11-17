@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { KnexService } from '../../../common/database/knex.service';
 import { RefreshToken } from '../types/refresh-token.type';
+import { Knex } from 'knex';
 
 @Injectable()
 export class RefreshTokensRepository {
@@ -34,6 +35,16 @@ export class RefreshTokensRepository {
       sql,
       [tokenId],
     );
+
+    return !!rows[0];
+  }
+
+  async revokeByUserId(
+    userId: string,
+    trx: Knex.Transaction,
+  ): Promise<boolean> {
+    const sql = `UPDATE refresh_tokens SET revoked = true WHERE user_id = ?`;
+    const { rows } = await trx.raw<{ rows: RefreshToken[] }>(sql, [userId]);
 
     return !!rows[0];
   }

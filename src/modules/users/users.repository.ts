@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserAlreadyExistsError } from '../../common/errors/user-already-exists.error';
 import { isPostgresUniqueViolation } from '../../common/utils/postgres-error.utils';
 import { RegisterResponse } from './types/register-response';
+import { Knex } from 'knex';
 
 @Injectable()
 export class UsersRepository {
@@ -53,5 +54,14 @@ export class UsersRepository {
     ]);
 
     return rows[0];
+  }
+
+  async updatePassword(
+    userId: string,
+    password: string,
+    trex: Knex.Transaction,
+  ): Promise<void> {
+    const updatePasswordSql = `UPDATE users SET password = ? WHERE id = ?`;
+    await trex.raw(updatePasswordSql, [userId, password]);
   }
 }

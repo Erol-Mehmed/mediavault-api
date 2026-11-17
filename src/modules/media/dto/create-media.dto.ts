@@ -16,7 +16,7 @@ export class CreateMediaDto {
   media_type: MediaType;
 
   @IsString()
-  @Length(1, 255)
+  @Length(3, 255)
   title: string;
 
   @IsOptional()

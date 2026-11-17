@@ -13,6 +13,10 @@ import { PasswordResetRepository } from './repositories/password-reset.repositor
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { createHash, randomBytes } from 'node:crypto';
 import { EmailService } from '../../common/email/email.service';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UsersRepository } from '../users/users.repository';
+import { KnexService } from '../../common/database/knex.service';
+import { Knex } from 'knex';
 
 @Injectable()
 export class AuthService {
@@ -20,9 +24,11 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly refreshTokensRepository: RefreshTokensRepository,
     private readonly passwordResetRepository: PasswordResetRepository,
+    private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
+    private readonly knexService: KnexService,
   ) {}
 
   // Helpers-----------------------------------------------------------------------------
@@ -79,6 +85,10 @@ export class AuthService {
 
   private async getUser(email: string): Promise<User> {
     return await this.usersService.findByEmail(email);
+  }
+
+  private createTokenHash(token: string) {
+    return createHash('sha256').update(token).digest('hex');
   }
 
   // -----------------------------------------------------------------------------------------
@@ -218,7 +228,7 @@ export class AuthService {
     }
 
     const token = randomBytes(32).toString('hex');
-    const tokenHash = createHash('sha256').update(token).digest('hex');
+    const tokenHash = this.createTokenHash(token);
 
     await this.passwordResetRepository.invalidateActiveByUserId(user.id);
     await this.passwordResetRepository.create({
@@ -245,5 +255,34 @@ export class AuthService {
     );
 
     return messagedReturn();
+  }
+
+  async resetPassword(data: ResetPasswordDto) {
+    const tokenHash = this.createTokenHash(data.token);
+    const validToken =
+      await this.passwordResetRepository.findValidToken(tokenHash);
+
+    if (!validToken) {
+      throw new UnauthorizedException(
+        'Invalid or expired password reset token',
+      );
+    }
+
+    const newHashedPassword = await bcrypt.hash(data.password, 10);
+
+    await this.knexService.knex.transaction(async (trx: Knex.Transaction) => {
+      await this.usersRepository.updatePassword(
+        validToken.user_id,
+        newHashedPassword,
+        trx,
+      );
+
+      await this.passwordResetRepository.markAsUsed(validToken.id, trx);
+
+      await this.refreshTokensRepository.revokeByUserId(
+        validToken.user_id,
+        trx,
+      );
+    });
   }
 }

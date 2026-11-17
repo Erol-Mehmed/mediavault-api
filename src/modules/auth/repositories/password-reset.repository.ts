@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { KnexService } from '../../../common/database/knex.service';
 import { CreatePasswordResetToken } from '../types/create-password-reset-token.type';
 import { PasswordResetToken } from '../types/password-reset-token.type';
+import { Knex } from 'knex';
 
 @Injectable()
 export class PasswordResetRepository {
@@ -31,5 +32,10 @@ export class PasswordResetRepository {
     }>(sql, [tokenHash]);
 
     return rows[0] || null;
+  }
+
+  async markAsUsed(tokenId: string, trex: Knex.Transaction): Promise<void> {
+    const markResetTokenAsUsedSql = `UPDATE password_reset_tokens SET used_at = NOW() WHERE id = ? AND used_at IS NULL`;
+    await trex.raw(markResetTokenAsUsedSql, [tokenId]);
   }
 }
