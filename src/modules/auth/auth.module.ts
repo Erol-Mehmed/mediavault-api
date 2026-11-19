@@ -10,6 +10,7 @@ import { RefreshTokensRepository } from './repositories/refresh-tokens.repositor
 import { DatabaseModule } from '../../common/database/database.module';
 import { PasswordResetRepository } from './repositories/password-reset.repository';
 import { EmailModule } from '../../common/email/email.module';
+import { UsersRepository } from '../users/users.repository';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { EmailModule } from '../../common/email/email.module';
     JwtStrategy,
     RefreshTokensRepository,
     PasswordResetRepository,
+    UsersRepository,
   ],
   controllers: [AuthController],
 })

@@ -38,4 +38,24 @@ export class PasswordResetRepository {
     const markResetTokenAsUsedSql = `UPDATE password_reset_tokens SET used_at = NOW() WHERE id = ? AND used_at IS NULL`;
     await trex.raw(markResetTokenAsUsedSql, [tokenId]);
   }
+
+  async consumeValidToken(
+    tokenHash: string,
+    trx: Knex.Transaction,
+  ): Promise<PasswordResetToken | null> {
+    const sql = `
+      UPDATE password_reset_tokens
+      SET used_at = NOW()
+      WHERE token_hash = ?
+      AND used_at IS NULL
+      AND expires_at > NOW()
+      RETURNING *
+    `;
+
+    const { rows } = await trx.raw<{ rows: PasswordResetToken[] }>(sql, [
+      tokenHash,
+    ]);
+
+    return rows[0] || null;
+  }
 }

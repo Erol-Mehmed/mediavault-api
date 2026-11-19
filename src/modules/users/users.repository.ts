@@ -59,9 +59,9 @@ export class UsersRepository {
   async updatePassword(
     userId: string,
     password: string,
-    trex: Knex.Transaction,
+    trx: Knex.Transaction,
   ): Promise<void> {
     const updatePasswordSql = `UPDATE users SET password = ? WHERE id = ?`;
-    await trex.raw(updatePasswordSql, [userId, password]);
+    await trx.raw(updatePasswordSql, [password, userId]);
   }
 }

@@ -259,30 +259,32 @@ export class AuthService {
 
   async resetPassword(data: ResetPasswordDto) {
     const tokenHash = this.createTokenHash(data.token);
-    const validToken =
-      await this.passwordResetRepository.findValidToken(tokenHash);
-
-    if (!validToken) {
-      throw new UnauthorizedException(
-        'Invalid or expired password reset token',
-      );
-    }
-
-    const newHashedPassword = await bcrypt.hash(data.password, 10);
 
     await this.knexService.knex.transaction(async (trx: Knex.Transaction) => {
+      const token = await this.passwordResetRepository.consumeValidToken(
+        tokenHash,
+        trx,
+      );
+
+      if (!token) {
+        throw new UnauthorizedException(
+          'Invalid or expired password reset token',
+        );
+      }
+
+      const newHashedPassword = await bcrypt.hash(data.password, 10);
+
       await this.usersRepository.updatePassword(
-        validToken.user_id,
+        token.user_id,
         newHashedPassword,
         trx,
       );
 
-      await this.passwordResetRepository.markAsUsed(validToken.id, trx);
-
-      await this.refreshTokensRepository.revokeByUserId(
-        validToken.user_id,
-        trx,
-      );
+      await this.refreshTokensRepository.revokeByUserId(token.user_id, trx);
     });
+
+    return {
+      message: 'Password has been reset successfully.',
+    };
   }
 }
